@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<beach_cruisers>
+  <bike>
+    <bike_id>1</bike_id>
+    <bike_name>Sunset Drifter</bike_name>
+    <color>Coral</color>
+    <frame_size>Medium</frame_size>
+    <price_per_day>14.99</price_per_day>
+    <available>true</available>
+    <description>Smooth and laid-back, perfect for cruising the boardwalk at golden hour.</description>
+  </bike>
+  <bike>
+    <bike_id>2</bike_id>
+    <bike_name>Ocean Breeze</bike_name>
+    <color>Teal</color>
+    <frame_size>Large</frame_size>
+    <price_per_day>16.99</price_per_day>
+    <available>true</available>
+    <description>Wide handlebars and a cushy seat for the most relaxed ride on the coast.</description>
+  </bike>
+  <bike>
+    <bike_id>3</bike_id>
+    <bike_name>Sandy Shores</bike_name>
+    <color>Cream</color>
+    <frame_size>Small</frame_size>
+    <price_per_day>12.99</price_per_day>
+    <available>false</available>
+    <description>Compact and lightweight — ideal for shorter riders exploring beach paths.</description>
+  </bike>
+  <bike>
+    <bike_id>4</bike_id>
+    <bike_name>Tropical Wave</bike_name>
+    <color>Lime Green</color>
+    <frame_size>Medium</frame_size>
+    <price_per_day>15.99</price_per_day>
+    <available>true</available>
+    <description>Bright and cheerful with a vintage fender and wicker basket included.</description>
+  </bike>
+  <bike>
+    <bike_id>5</bike_id>
+    <bike_name>Breezy Blue</bike_name>
+    <color>Sky Blue</color>
+    <frame_size>Large</frame_size>
+    <price_per_day>17.99</price_per_day>
+    <available>true</available>
+    <description>A classic step-through frame with seven speeds for those longer coastal rides.</description>
+  </bike>
+  <bike>
+    <bike_id>6</bike_id>
+    <bike_name>Flamingo Glide</bike_name>
+    <color>Hot Pink</color>
+    <frame_size>Small</frame_size>
+    <price_per_day>13.99</price_per_day>
+    <available>false</available>
+    <description>Turn heads on the promenade with this bold, eye-catching cruiser.</description>
+  </bike>
+</beach_cruisers>

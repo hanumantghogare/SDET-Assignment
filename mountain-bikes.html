@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Mountain Bikes &mdash; PedalPal</title>
+  <!-- jQuery 1.12.4: end of life, end of an era, still running in production everywhere.
+       Security patches stopped in 2016. The 1.x branch was declared legacy.
+       None of this stopped anyone. -->
+  <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #ebf4ff;
+      color: #2d3748;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: #2b6cb0;
+      color: #fff;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    header h1 { font-size: 1.7em; }
+
+    .back-btn {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.5);
+      color: #fff;
+      padding: 7px 18px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9em;
+    }
+
+    .back-btn:hover { background: rgba(255,255,255,0.35); }
+
+    .subtitle {
+      padding: 20px 32px 4px;
+      color: #2b6cb0;
+      font-size: 0.95em;
+    }
+
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      padding: 20px 32px 40px;
+      flex: 1;
+    }
+
+    .bike-card {
+      background: #fff;
+      border-radius: 10px;
+      width: 320px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.09);
+      overflow: hidden;
+      display: none;
+      flex-direction: column;
+    }
+
+    .card-header {
+      background: #3182ce;
+      padding: 18px 20px;
+      color: #fff;
+    }
+
+    .card-header h3 { font-size: 1.15em; }
+
+    .card-header .brand-tag {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 0.78em;
+      background: rgba(255,255,255,0.25);
+      padding: 2px 10px;
+      border-radius: 20px;
+    }
+
+    .spec-grid {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 14px 20px 4px;
+      gap: 8px 0;
+    }
+
+    .spec-item { width: 50%; padding-bottom: 10px; }
+
+    .spec-label { font-size: 0.72em; color: #718096; text-transform: uppercase; letter-spacing: 0.04em; }
+    .spec-value { font-size: 0.92em; font-weight: 600; color: #2d3748; margin-top: 2px; }
+
+    .card-footer {
+      padding: 14px 20px;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .price { font-size: 1.25em; font-weight: 700; color: #2b6cb0; }
+    .price span { font-size: 0.65em; font-weight: 400; color: #718096; }
+
+    .availability {
+      font-size: 0.78em;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    .avail-yes { background: #bee3f8; color: #2a4365; }
+    .avail-no  { background: #fed7d7; color: #742a2a; }
+
+    .rent-btn {
+      display: block;
+      width: 100%;
+      margin: 0 0 16px;
+      padding: 10px;
+      background: #3182ce;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.95em;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .rent-btn:hover   { background: #2b6cb0; }
+    .rent-btn:disabled {
+      background: #a0aec0;
+      cursor: not-allowed;
+    }
+
+    .terrain-badge {
+      display: inline-block;
+      margin: 12px 20px 0;
+      font-size: 0.75em;
+      font-weight: 600;
+      padding: 3px 12px;
+      border-radius: 20px;
+      background: #ebf4ff;
+      color: #2b6cb0;
+      border: 1px solid #bee3f8;
+    }
+
+    footer {
+      text-align: center;
+      padding: 14px;
+      font-size: 0.8em;
+      color: #a0aec0;
+      background: #dbeafe;
+    }
+
+    #loading {
+      padding: 60px;
+      text-align: center;
+      color: #718096;
+      font-size: 1.1em;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Accessory modal — same concept as beach-cruisers.html.              */
+    /* Two pages, same modal. Could be a shared JS file. It is not.        */
+    /* Distributed consistency through copy-paste is a project tradition.  */
+    /* ------------------------------------------------------------------ */
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.visible {
+      display: flex;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      width: 540px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header {
+      background: #2b6cb0;
+      color: #fff;
+      padding: 20px 24px;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .modal-header h2 { font-size: 1.2em; }
+    .modal-header p  { font-size: 0.85em; color: #bee3f8; margin-top: 4px; }
+
+    .bundle-banner {
+      display: none;
+      background: #fffbeb;
+      border: 1px solid #f6e05e;
+      color: #744210;
+      padding: 10px 24px;
+      font-size: 0.88em;
+      font-weight: 600;
+    }
+
+    .bundle-banner.visible { display: block; }
+
+    .modal-body { padding: 16px 24px; }
+
+    .acc-item {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid #e2e8f0;
+      gap: 16px;
+    }
+
+    .acc-item:last-child { border-bottom: none; }
+
+    .acc-info { flex: 1; }
+    .acc-name { font-weight: 600; font-size: 0.95em; }
+    .acc-desc { font-size: 0.82em; color: #718096; margin-top: 3px; line-height: 1.45; }
+    .acc-meta { font-size: 0.8em; color: #a0aec0; margin-top: 4px; }
+
+    .acc-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      min-width: 110px;
+    }
+
+    .acc-price { font-weight: 700; color: #2b6cb0; font-size: 0.95em; }
+
+    .qty-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .qty-btn {
+      width: 28px;
+      height: 28px;
+      border: 1px solid #cbd5e0;
+      background: #f7fafc;
+      border-radius: 4px;
+      font-size: 1em;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .qty-btn:hover { background: #edf2f7; }
+
+    .qty-display {
+      width: 32px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.95em;
+    }
+
+    .out-of-stock { color: #e53e3e; font-size: 0.8em; font-weight: 600; }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f7fafc;
+      border-radius: 0 0 12px 12px;
+    }
+
+    .modal-total { font-size: 0.95em; color: #4a5568; }
+    .modal-total strong { font-size: 1.2em; color: #2b6cb0; }
+
+    .modal-actions { display: flex; gap: 10px; }
+
+    .btn-skip {
+      padding: 9px 20px;
+      border: 1px solid #cbd5e0;
+      background: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9em;
+      color: #4a5568;
+    }
+
+    .btn-skip:hover { background: #edf2f7; }
+
+    .btn-add {
+      padding: 9px 20px;
+      background: #3182ce;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: 600;
+    }
+
+    .btn-add:hover    { background: #2b6cb0; }
+    .btn-add:disabled { background: #a0aec0; cursor: not-allowed; }
+
+    .toast {
+      display: none;
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2b6cb0;
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-size: 0.95em;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      z-index: 300;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <button class="back-btn" id="btnBack">&#x2190; Back</button>
+    <h1>&#x26F0; Mountain Bikes</h1>
+  </header>
+
+  <p class="subtitle">Data sourced from: <strong>SampleData/mountain_bikes.json</strong></p>
+
+  <div id="loading">Loading bikes&hellip;</div>
+  <div class="grid" id="bikeGrid"></div>
+
+  <footer>PedalPal &copy; 2008 &mdash; All rentals subject to availability</footer>
+
+  <div class="modal-overlay" id="accModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>&#x1F6CD; Add Accessories to Your Rental</h2>
+        <p>Mountain bikes love company. Accessories are optional. The mountain is not.</p>
+      </div>
+      <div class="bundle-banner" id="bundleBanner">
+        &#x1F389; Bundle deal active! Water bottle + bike light = 10% off your entire accessory order.
+      </div>
+      <div class="modal-body" id="accList"></div>
+      <div class="modal-footer">
+        <div class="modal-total">Total: <strong id="accTotal">$0.00</strong></div>
+        <div class="modal-actions">
+          <button class="btn-skip" id="btnSkip">Skip</button>
+          <button class="btn-add"  id="btnAddAcc">Add to Rental</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    var BUNDLE_IDS = [1, 3];
+    var BUNDLE_RATE = 0.10;
+
+    var _accessories = [];
+    var _quantities  = {};
+
+    $(function () {
+
+      $('#btnBack').on('click', function () {
+        window.location.href = 'index.html';
+      });
+
+      $.getJSON('/Handlers/BikeHandler.ashx?action=mountain', function (bikes) {
+        $('#loading').hide();
+        renderBikes(bikes);
+      }).fail(function () {
+        $('#loading').text('Failed to load bikes. The server is somewhere on the trail.');
+      });
+
+      $('#bikeGrid').on('click', '.rent-btn:not([disabled])', function () {
+        var $btn = $(this);
+        var id   = $btn.data('id');
+
+        $btn.prop('disabled', true).text('Processing\u2026');
+
+        $.ajax({
+          url: '/Handlers/BikeHandler.ashx?action=rent',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ BikeType: 'mountain', BikeId: String(id) }),
+          success: function (result) {
+            if (result.Success) {
+              $btn.text('Not Available');
+              $btn.closest('.bike-card')
+                  .find('.availability')
+                  .removeClass('avail-yes')
+                  .addClass('avail-no')
+                  .text('Rented Out');
+              openAccessoryModal();
+            } else {
+              $btn.prop('disabled', false).text('Rent This Bike');
+              showToast(result.Message);
+            }
+          },
+          error: function () {
+            $btn.prop('disabled', false).text('Rent This Bike');
+            showToast('Something went wrong. The bike is still available, technically.');
+          }
+        });
+      });
+
+      $('#btnSkip').on('click', closeModal);
+
+      // Quantity controls registered once here, not inside openAccessoryModal.
+      // Registering inside the modal open function means each rental adds another
+      // handler to #accList — rent three bikes and a single click fires three times.
+      $('#accList').on('click', '.qty-inc', function () {
+        var id  = $(this).data('id');
+        var max = $(this).data('max');
+        if (_quantities[id] < max) {
+          _quantities[id]++;
+          updateQtyDisplay(id);
+          updateTotal();
+        }
+      });
+
+      $('#accList').on('click', '.qty-dec', function () {
+        var id = $(this).data('id');
+        if (_quantities[id] > 0) {
+          _quantities[id]--;
+          updateQtyDisplay(id);
+          updateTotal();
+        }
+      });
+
+      $('#btnAddAcc').on('click', function () {
+        var items = [];
+        $.each(_quantities, function (id, qty) {
+          if (qty > 0) items.push({ AccessoryID: parseInt(id), Quantity: qty });
+        });
+
+        if (!items.length) {
+          closeModal();
+          return;
+        }
+
+        var $btn = $(this);
+        $btn.prop('disabled', true).text('Processing\u2026');
+
+        $.ajax({
+          url: '/Handlers/AccessoryHandler.ashx',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify(items),
+          success: function (result) {
+            closeModal();
+            var msg = result.Message;
+            if (result.BundleDiscountApplied)
+              msg += ' (Saved $' + result.DiscountAmount.toFixed(2) + ')';
+            showToast(msg);
+          },
+          error: function () {
+            $btn.prop('disabled', false).text('Add to Rental');
+            showToast('Order failed. The accessories remain in the warehouse, awaiting their purpose.');
+          }
+        });
+      });
+    });
+
+    function renderBikes(bikes) {
+      $.each(bikes, function (i, bike) {
+        var availClass  = bike.IsAvailable ? 'avail-yes' : 'avail-no';
+        var availText   = bike.IsAvailable ? 'Available'  : 'Rented Out';
+        var btnDisabled = bike.IsAvailable ? '' : 'disabled';
+
+        var card = $(
+          '<div class="bike-card">' +
+            '<div class="card-header">' +
+              '<h3>' + bike.ModelName + '</h3>' +
+              '<span class="brand-tag">' + bike.Brand + '</span>' +
+            '</div>' +
+            '<span class="terrain-badge">&#x1F3C4; ' + bike.Terrain + '</span>' +
+            '<div class="spec-grid">' +
+              '<div class="spec-item">' +
+                '<div class="spec-label">Suspension</div>' +
+                '<div class="spec-value">' + bike.SuspensionType + '</div>' +
+              '</div>' +
+              '<div class="spec-item">' +
+                '<div class="spec-label">Gears</div>' +
+                '<div class="spec-value">' + bike.GearCount + '-speed</div>' +
+              '</div>' +
+              '<div class="spec-item">' +
+                '<div class="spec-label">Frame</div>' +
+                '<div class="spec-value">' + bike.FrameMaterial + '</div>' +
+              '</div>' +
+              '<div class="spec-item">' +
+                '<div class="spec-label">Weight</div>' +
+                '<div class="spec-value">' + bike.WeightKg + ' kg</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="card-footer">' +
+              '<div class="price">$' + parseFloat(bike.DailyRate).toFixed(2) + ' <span>/ day</span></div>' +
+              '<span class="availability ' + availClass + '">' + availText + '</span>' +
+            '</div>' +
+            '<div style="padding:12px 20px 0;">' +
+              '<button class="rent-btn" ' + btnDisabled + ' ' +
+                'data-id="' + bike.BikeID + '" ' +
+                'data-name="' + bike.ModelName + '">' +
+                (bike.IsAvailable ? 'Rent This Bike' : 'Not Available') +
+              '</button>' +
+            '</div>' +
+          '</div>'
+        );
+
+        $('#bikeGrid').append(card);
+        card.fadeIn(300 + i * 80);
+      });
+    }
+
+    function openAccessoryModal() {
+      _quantities  = {};
+      _accessories = [];
+
+      $.getJSON('/Handlers/AccessoryHandler.ashx?bikeType=mountain', function (accessories) {
+        _accessories = accessories;
+        var $list = $('#accList').empty();
+
+        $.each(accessories, function (i, acc) {
+          _quantities[acc.AccessoryID] = 0;
+          var outOfStock = acc.StockCount <= 0;
+
+          var $row = $(
+            '<div class="acc-item" data-id="' + acc.AccessoryID + '">' +
+              '<div class="acc-info">' +
+                '<div class="acc-name">' + acc.Name + '</div>' +
+                '<div class="acc-desc">' + acc.Description + '</div>' +
+                '<div class="acc-meta">' + acc.Category + ' &mdash; ' + acc.StockCount + ' in stock</div>' +
+              '</div>' +
+              '<div class="acc-controls">' +
+                '<div class="acc-price">$' + parseFloat(acc.UnitPrice).toFixed(2) + '</div>' +
+                (outOfStock
+                  ? '<div class="out-of-stock">Out of stock</div>'
+                  : '<div class="qty-row">' +
+                      '<button class="qty-btn qty-dec" data-id="' + acc.AccessoryID + '">&#x2212;</button>' +
+                      '<span class="qty-display" data-id="' + acc.AccessoryID + '">0</span>' +
+                      '<button class="qty-btn qty-inc" data-id="' + acc.AccessoryID + '" data-max="' + acc.StockCount + '">+</button>' +
+                    '</div>'
+                ) +
+              '</div>' +
+            '</div>'
+          );
+
+          $list.append($row);
+        });
+
+        updateTotal();
+        $('#accModal').addClass('visible');
+        $('#btnAddAcc').prop('disabled', false).text('Add to Rental');
+      });
+    }
+
+    function updateQtyDisplay(id) {
+      $('.qty-display[data-id="' + id + '"]').text(_quantities[id]);
+    }
+
+    function updateTotal() {
+      var bundleActive = BUNDLE_IDS.every(function (id) {
+        return (_quantities[id] || 0) > 0;
+      });
+
+      $('#bundleBanner').toggleClass('visible', bundleActive);
+
+      var subtotal = 0;
+      $.each(_accessories, function (i, acc) {
+        subtotal += acc.UnitPrice * (_quantities[acc.AccessoryID] || 0);
+      });
+
+      var discount = bundleActive ? Math.round(subtotal * BUNDLE_RATE * 100) / 100 : 0;
+      var total = Math.round((subtotal - discount) * 100) / 100;
+      $('#accTotal').text('$' + total.toFixed(2));
+    }
+
+    function closeModal() {
+      $('#accModal').removeClass('visible');
+    }
+
+    function showToast(msg) {
+      var $t = $('#toast');
+      $t.text(msg).fadeIn(200);
+      setTimeout(function () { $t.fadeOut(400); }, 3500);
+    }
+  </script>
+
+</body>
+</html>

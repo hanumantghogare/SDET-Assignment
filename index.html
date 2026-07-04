@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>PedalPal Bike Rentals</title>
+  <!-- jQuery 1.12.4: the final release of the 1.x branch, retired in 2016.
+       Still works in every browser that matters and several that don't.
+       jQuery 2.x dropped IE 6/7/8 support. jQuery 3.x dropped more things.
+       This version dropped nothing. It is 97KB of accumulated goodwill. -->
+  <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f0f4f8;
+      color: #2d3748;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: #1a365d;
+      color: #fff;
+      padding: 24px 40px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.4em;
+      letter-spacing: 2px;
+    }
+
+    header p {
+      margin-top: 6px;
+      font-size: 1.05em;
+      color: #90cdf4;
+    }
+
+    .hero {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      gap: 40px;
+    }
+
+    .category-card {
+      background: #fff;
+      border-radius: 12px;
+      width: 380px;
+      padding: 48px 32px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+      border: 3px solid transparent;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    }
+
+    .category-card:hover {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.16);
+      transform: translateY(-4px);
+    }
+
+    .category-card.beach:hover   { border-color: #38a169; }
+    .category-card.mountain:hover { border-color: #3182ce; }
+
+    .category-card .icon {
+      font-size: 5em;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .category-card h2 {
+      font-size: 1.7em;
+      margin-bottom: 12px;
+    }
+
+    .category-card.beach h2   { color: #276749; }
+    .category-card.mountain h2 { color: #2b6cb0; }
+
+    .category-card p {
+      color: #718096;
+      font-size: 0.95em;
+      line-height: 1.6;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 12px 32px;
+      border-radius: 6px;
+      font-size: 1em;
+      font-weight: 600;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-beach    { background: #38a169; }
+    .btn-mountain { background: #3182ce; }
+
+    footer {
+      text-align: center;
+      padding: 16px;
+      font-size: 0.8em;
+      color: #a0aec0;
+      background: #edf2f7;
+    }
+
+    #easterEgg {
+      cursor: default;
+      display: inline-block;
+    }
+
+    #easterEgg.spin {
+      display: inline-block;
+      animation: spin 0.6s ease-out;
+    }
+
+    @keyframes spin {
+      0%   { transform: rotate(0deg)   scale(1);   }
+      50%  { transform: rotate(180deg) scale(1.4); }
+      100% { transform: rotate(360deg) scale(1);   }
+    }
+
+    #resetMsg {
+      display: none;
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a365d;
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-size: 0.95em;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1><span id="easterEgg">&#x1F6B2;</span> PedalPal Bike Rentals</h1>
+    <p>Two wheels. Endless adventure. Choose your ride.</p>
+  </header>
+
+  <div class="hero">
+
+    <div class="category-card beach" id="btnBeach">
+      <span class="icon">&#x1F3D6;</span>
+      <h2>Beach Cruisers</h2>
+      <p>Kick back and roll along the coast in style. Our cruisers are built for sun, sand, and easy living.</p>
+      <button class="btn btn-beach">Browse Cruisers</button>
+    </div>
+
+    <div class="category-card mountain" id="btnMountain">
+      <span class="icon">&#x26F0;</span>
+      <h2>Mountain Bikes</h2>
+      <p>Tackle rugged trails and epic descents. Our fleet covers everything from hardtails to full-suspension rigs.</p>
+      <button class="btn btn-mountain">Browse Mountain Bikes</button>
+    </div>
+
+  </div>
+
+  <div id="resetMsg"></div>
+
+  <footer>PedalPal &copy; 2008 &mdash; All rentals subject to availability</footer>
+
+  <script>
+    $(function () {
+      // Navigation: the boring kind. No COM interop, no WebBrowser host, no window.external.
+      // Just href. It turns out this was always an option.
+      $('#btnBeach').on('click', function () {
+        window.location.href = 'beach-cruisers.html';
+      });
+
+      $('#btnMountain').on('click', function () {
+        window.location.href = 'mountain-bikes.html';
+      });
+
+      // Easter egg: click the bike emoji to reset the entire fleet.
+      // Posts to an .ashx Generic Handler — the pre-Web API way to handle HTTP requests.
+      // No routing table, no controller, no model binding. Just IHttpHandler.ProcessRequest.
+      // It resets everything and writes JSON to the response stream by hand.
+      // This was normal. This was fine. This was 2007.
+      $('#easterEgg').on('click', function () {
+        var $el = $(this);
+        $el.addClass('spin');
+        setTimeout(function () { $el.removeClass('spin'); }, 650);
+
+        $.ajax({
+          url: '/Handlers/BikeHandler.ashx?action=reset',
+          type: 'POST',
+          contentType: 'application/json',
+          success: function (result) {
+            var $msg = $('#resetMsg');
+            $msg.text(result.Message).fadeIn(200);
+            setTimeout(function () { $msg.fadeOut(400); }, 3000);
+          }
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>
